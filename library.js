@@ -1,4 +1,4 @@
-const myLibrary = [];
+let myLibrary = [];
 const addButton = document.querySelector(".add-btn");
 
 const dialog = document.querySelector("dialog");
@@ -35,14 +35,27 @@ labelCheckbox.textContent = "Check if you have read it";
 const submitBtn = document.createElement("button");
 submitBtn.type = "submit";
 submitBtn.textContent = "Add Book";
+// submitBtn.setAttribute("disabled", true );
+// const inputs=[inputTitle,inputAuthor,inputPages,inputCheckBox]
+// function checkInput(){
+//     inputs.forEach((ele)=>{
+// if(!ele.value && !ele.checked ){
+//     submitBtn.setAttribute("disabled", true );
+// }else{
+//     submitBtn.setAttribute("disabled", false );
+// }
+//     })
+// }
 
-function Book(title, author, pages, read, id) {
+
+
+function Book(title, author, pages, read,id) {
   // the constructor...
   this.title = title; //this.title, this.author, this.pages, this.read → properties of each book.
   //function inside each book object that returns a nicely formatted string.
   this.author = author;
   this.pages = pages;
-  this.read = true;
+  this.read = read;
   this.id = crypto.randomUUID();
 }
 
@@ -53,9 +66,10 @@ function addBookToLibrary(...arg) {
   console.log(book.id, "id");
   return myLibrary;
 }
-function createCard(title, author, pages, read) {
-    const cardDiv = document.createElement("div");
-cardDiv.classList.add("card");
+function createCard(title, author, pages, read, id) {
+  const cardDiv = document.createElement("div");
+  cardDiv.classList.add("card");
+  cardDiv.setAttribute("data-id", id);
   cards.appendChild(cardDiv);
 
   let p1 = document.createElement("p");
@@ -81,9 +95,13 @@ cardDiv.classList.add("card");
   cardDiv.appendChild(deletBookbtn);
 
   deletBookbtn.addEventListener("click", function () {
-   myLibrary.filter(function(ele){
-return ele.id
-   })
+    let bookId = cardDiv.getAttribute("data-id");
+
+    // Remove from array
+    myLibrary = myLibrary.filter((book) => book.id !== bookId);
+
+    // Remove from DOM
+    cardDiv.remove();
   });
 }
 function createFormDialog() {
@@ -100,18 +118,27 @@ function createFormDialog() {
 
   submitBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    console.log("Form submitted:", {
-      title: inputTitle.value,
-      author: inputAuthor.value,
-      pages: inputPages.value,
-      isRead: inputCheckBox.checked,
-    });
-    createCard(
-      inputTitle.value,
-      inputAuthor.value,
-      inputPages.value,
-      inputCheckBox.checked
-    );
+
+  
+  // create book and push to array
+  let newBook = new Book(
+    inputTitle.value,
+    inputAuthor.value,
+    inputPages.value,
+    inputCheckBox.checked
+  );
+  myLibrary.push(newBook);
+
+  // use the same id when creating card
+  createCard(
+    newBook.title,
+    newBook.author,
+    newBook.pages,
+    newBook.read,
+    newBook.id
+  );
+
+  formcreate.reset(); // clear form after adding
   });
 }
 
@@ -119,48 +146,46 @@ addBookToLibrary(
   "Journey to the Unknown",
   "Aria Moon",
   210,
-  false,
-  crypto.randomUUID()
+  false
+
 );
 
 addBookToLibrary(
   "Whispers of the Forest",
   "Eldon Grey",
   145,
-  true,
-  crypto.randomUUID()
+  true
 );
 
 addBookToLibrary(
   "Shadows of Tomorrow",
   "Luna Ray",
   398,
-  false,
-  crypto.randomUUID()
+  false
+
 );
 
 addBookToLibrary(
   "Echoes of Eternity",
   "Kai Storm",
   520,
-  true,
-  crypto.randomUUID()
+  true
+
 );
 
 addBookToLibrary(
   "Fragments of Reality",
   "Mira Solis",
   276,
-  true,
-  crypto.randomUUID()
+  true
+
 );
 
 addBookToLibrary(
   "The Silent Horizon",
   "Orion Vale",
   189,
-  false,
-  crypto.randomUUID()
+  false
 );
 
 addBookToLibrary(
@@ -172,9 +197,10 @@ addBookToLibrary(
 );
 
 // "Show the dialog" button opens the dialog modally
+  createFormDialog();
 showButton.addEventListener("click", () => {
   dialog.showModal();
-  createFormDialog();
+
 });
 
 // "Close" button closes the dialog
@@ -187,7 +213,7 @@ const displayBook = function () {
   for (let book of myLibrary) {
     createCard(book.title, book.author, book.pages, book.read);
   }
-  return cards
+  return cards;
 };
 
 displayBook();
