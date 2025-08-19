@@ -56,7 +56,12 @@ function Book(title, author, pages, read,id) {
   this.author = author;
   this.pages = pages;
   this.read = read;
-  this.id = crypto.randomUUID();
+ this.id = id || crypto.randomUUID(); // ✅ id reuse if provided
+}
+
+Book.prototype.toggleReadStatus=function(){
+  this.read = !this.read
+
 }
 
 function addBookToLibrary(...arg) {
@@ -88,11 +93,15 @@ function createCard(title, author, pages, read, id) {
   deletBookbtn.classList.add("btn-del");
   deletBookbtn.textContent = "Delete";
 
+  const readResetBtn=document.createElement("button")
+  readResetBtn.classList.add("read-reset")
+  readResetBtn.textContent="Toggle Read"
   cardDiv.appendChild(p1);
   cardDiv.appendChild(p2);
   cardDiv.appendChild(p3);
   cardDiv.appendChild(p4);
   cardDiv.appendChild(deletBookbtn);
+  cardDiv.appendChild(readResetBtn)
 
   deletBookbtn.addEventListener("click", function () {
     let bookId = cardDiv.getAttribute("data-id");
@@ -103,6 +112,20 @@ function createCard(title, author, pages, read, id) {
     // Remove from DOM
     cardDiv.remove();
   });
+
+  readResetBtn.addEventListener("click",function(){
+      let bookIdd = cardDiv.getAttribute("data-id");
+ // 1. find the book by id
+  let book = myLibrary.find(b => b.id === bookIdd);
+  // 2. toggle the read status
+  if (book) {
+    book.toggleReadStatus();
+     // 3. update DOM text also
+  
+  p4.textContent =  `You have read this Book :    ` +book.read 
+  }
+
+  })
 }
 function createFormDialog() {
   dialog.appendChild(formcreate);
@@ -211,7 +234,7 @@ closeButton.addEventListener("click", () => {
 const displayBook = function () {
   console.log("display on page");
   for (let book of myLibrary) {
-    createCard(book.title, book.author, book.pages, book.read);
+    createCard(book.title, book.author, book.pages, book.read,book.id);
   }
   return cards;
 };
